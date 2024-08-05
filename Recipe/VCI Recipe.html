@@ -1,0 +1,378 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Volunteer Capacity Indicator</title>
+</head>
+
+<body>
+<h1> Volunteer Capacity Indicator (VCI)</h1>
+<h2>Problem</h2>
+<p>Having too many badges showing a persons completion of volunteer related Eligibility/Safety tasks can be difficult to know a volunteers true eligibility and can add safety and security vulnerabilities for your church. Each church evaluates the safety and security of their volunteers differently. Hopefully you can use the framework below to process your VCI. If you will not be using the Bonus Content, the Evaluation dates will be set manually to dates when you would like to notify ministries of potential safety/security issues. The Bonus content adds a job/workflow that helps remove around 80% of the manual changes that occur during normal processing of expired requirements.</p>
+<h2>What is a VCI?</h2>
+<p>Beyond qualifications of age and skill-set and background checks, this indicator will give an opportunity for Ministries and  Leaders to further indicate a more specific level of eligibility/Safety for various volunteer opportunities:</p>
+<ul>
+  <li>Black-Unauthorized to Volunteer</li>
+  <li>Red-Unauthorized to Volunteer at this Time</li>
+  <li>Orange-All Star Requires Updated Authorizations</li>
+  <li>Blue-Authorized All Star for Adults Only</li>
+  <li>Yellow-Authorized All Star Minor and Conditional</li>
+  <li>Green-Authorized All Star for All</li>
+  <li>Grey-All Star Status Under Evaluation</li>
+  <li>Purple-High Capacity All Star&nbsp;</li>
+</ul>
+<h2>Things you need to accomplish this recipe:</h2>
+<p>This was written using v14.3 and Fluid Lava</p>
+<p><strong>Blue Box Moon: Workflow StimPack plugin.</strong> /Package/68<br>
+  This gives you &quot;For Each&quot; as a new workflow action that gives an easy way to cycle through many like items without having to create the complicated tracking attributes.
+</p>
+<p><strong>For Bonus Content:<br>
+  Workflow Launcher by Southeast Christian Church </strong>/Package/85 <br>
+This gives you a new Job: &quot;Workflow Launcher (Plugin)&quot; that allows you to use SQL to start a workflow and populate Workflow attributes
+</p>
+<h2>Details</h2>
+<p>In it's simplist form, the VCI is a Person Attribute Matrix manually entered to show the person's eligibility to serve. The reason there is a manual process to start the VCI is there is a manual review of the person's Background check to determine the initial VCI Level.</p>
+<p>The automation involved give notifications when a volunteer's VCI change or expires and also automates the Level at expiration then also kicking off notifications.</p>
+<h3><strong>Attribute Matrix:</strong> /admin/general/attribute-matrix</h3>
+<p>Name: Volunteer Capacity Indicator<br>
+Description:&nbsp;A matrix containing information about an Volunteers capacity to serve.&nbsp;<br>
+Item Attributes:</p>
+<ul>
+  <li>Level (Save the Attribute Id for the Workflow Trigger)
+    <ul>
+      <li>Key: Level</li>
+      <li>Field Type: Single Select</li>
+      <li>Values: <br>
+        Black^Blk-Unauthorized to Volunteer,<br>
+        Red^Red-Unauthorized to Volunteer at this Time,<br>
+        Orange^Org-All Star Requires Updated Authorizations,<br>
+        Blue^Blu-Authorized All Star for Adults Only,<br>
+        Yellow^Yel-Authorized All Star Minor and Conditional,<br>
+        Green^Grn-Authorized All Star for All,<br>
+        Grey^Gry-All Star Status Under Evaluation, <br>
+        Purple^Pur-High Capacity All Star</li>
+      <li>Control Type: Radio Buttons</li>
+    </ul>
+  </li>
+  <li>Person Responsible
+    <ul>
+      <li>Key: Responsible</li>
+      <li>Field Type; Person</li>
+    </ul>
+  </li>
+  <li>Added Date
+    <ul>
+      <li>Key: AddedDate</li>
+      <li>Field Type: Date</li>
+    </ul>
+  </li>
+  <li>Evaluation Date
+    <ul>
+      <li>Key: EvaluationDate</li>
+      <li>Field Type: Date</li>
+    </ul>
+  </li>
+  <li>Notes
+    <ul>
+      <li>Key: Notes</li>
+      <li>Field Type: Memo</li>
+    </ul>
+  </li>
+</ul>
+<h3><strong>Person Attriubte:</strong></h3>
+<ul>
+  <li>Name: VCI</li>
+  <li>Key: VCI</li>
+  <li>Field Type: Matrix</li>
+  <li>Attribute Matrix Template: Volunteer Capacity Indicator</li>
+</ul>
+<p>Place this Person Attribute on a block that is secure so only your safey/security team can see and edit.</p>
+<h3><strong>Badge:</strong> /admin/general/badges</h3>
+<ul>
+  <li>Name: Volunteer Capacity Indicator</li>
+  <li>Entity Type: Person</li>
+  <li>Badge Type: Lava Badge</li>
+  <li>Display Text:<br>
+  <pre>{% assign vci = Person | Attribute:'VCI','Object' %}
+{% attributematrixitem where:'AttributeMatrixId == "{{ vci.Id }}"' sort:'EvaluationDate desc' iterator:'items' limit:'1' securityenabled:'false' %}
+    {% for item in items %}
+        {% assign length = item | Attribute:'Level' | Size | Minus:4 %}
+        <div class="rockbadge rockbadge-icon" data-toggle="tooltip" data-original-title="{{ item | Attribute:'Level' | Slice:4,length }}">
+            <i class="fab fa-vimeo-v" style="color:{{ item | Attribute:'Level','RawValue' }}"></i>
+        </div>
+    {% endfor %}    
+{% endattributematrixitem %}</pre></li>
+</ul>
+	<h3><strong>Workflow:</strong> VCI Change - VCI Change_202408011359.json</h3>
+	<p><strong>Purpose</strong>: When the Level is changed or a new VCI row is added, this workflow triggers (see Workflow Trigger below).</p>
+<ol>
+      <li>Gets all connectors that the person has a Active Connection Request for in the Serving Connection Type.</li>
+      <li>Gets all Connection Requests the person is still Active in the Serving Connection Type.</li>
+      <li>Gets all leaders of our &quot;All Star&quot; (volunteer) groups where the person is a group member.</li>
+      <li>Gets all groups where the person is a group member.</li>
+      <li>Send Email to the VCI Responsible Person (pulled from the VCI Matrix Attribute)</li>
+      <li>If the level is Black, also email the Safety and Security Team</li>
+      <li>Send Emails to all Connectors giving them links directly to the Connection Request</li>
+      <li>Send Emails to Group Leaders of Volunteer Groups with links to the groups the person is a part of and they are a leader of.</li>
+</ol>
+<p><strong>Things to Change:</strong></p>
+<ol>
+  <li>Attribute: Admin - Set to a Rock	Administrator account that lets you properly Read the Attribute Matrix Item</li>
+  <li>Attribute: Safety Team - Person who is responsible for your safety and security of your campuses</li>
+  <li>Activity: Process Changes
+    <ol>
+      <li>        Action: 
+        Get Connectors<br>
+        Modify the cr.ConnectionTypeId = 4 line to the connection type id of your serving connections</li>
+      <li>Action: Get Connection Request<br>
+      Modify the cr.ConnectionTypeId = 4 line to the connection type id of your serving connections      </li>
+      <li>Action: Get All Star Group Leaders and Groups<br>
+        Modify &quot;WHERE g.GroupTypeId IN (112, 113)&quot;
+      to the group types of your volunteer groups and<br>
+      Modify &quot;AND gtr.Id IN (215, 219)&quot; to the Group Role Ids of your leaders
+      of those types</li>
+      <li>Action: Get Groups<br>
+        Modify &quot;WHERE g.GroupTypeId IN (112, 113)&quot; to the group types of your volunteer groups
+      </li>
+    </ol>
+  </li>
+</ol>
+<h3><strong>Workflow Trigger</strong></h3>
+<ul>
+  <li>Create a Workflow Trigger: /admin/general/workflow-triggers
+  </li>
+</ul>
+<ol>
+  <ol>
+    <li>Trigger Type: Post-Save</li>
+    <li>Active</li>
+    <li>Entity Type: Attribute Value</li>
+    <li>Entity Type Qualifier Column: AttributeId</li>
+    <li>Or value is: Attribute Id of Level in the Attribute Matrix Template: Volunteer Capacity Indicator created above.</li>
+  </ol>
+
+</ol>
+<h3><strong>Reports</strong></h3>
+<p><strong>VCI Report</strong><br>
+  Shows all People with a VCI set. Allows Filtering/Sorting
+</p>
+<p>Create a page with a Dynamic Data Block</p>
+<p><strong>Query</strong>:
+<pre>DECLARE @VCIAttributeId INT = 15892; -- VCI Person Attribute ID
+DECLARE @LevelAttributeId INT = 15889; -- Level Attribute ID of VCI Matrix
+DECLARE @ResponsibleAttributeId INT = 15888; -- Responsible Attribute ID of VCI Matrix
+DECLARE @AddedAttributeId INT = 15905; -- Added Date Attribute ID of VCI Matrix
+DECLARE @EvalAttributeId INT = 15890; -- Evaluation Date Attrivute ID of VCI Matrix
+DECLARE @NotesAttributeId INT = 15891; -- Notes Attribute ID of VCI Matrix
+
+SELECT vcip.*
+FROM Person p2
+INNER JOIN AttributeValue vciav
+    ON vciav.EntityId = p2.Id
+        AND vciav.AttributeId = @VCIAttributeId
+CROSS APPLY (
+    SELECT TOP 1 p.Id
+        , p.FirstName
+        , p.LastName
+        , levelav.[Value] as [Level]
+        , addedav.ValueAsDateTime as [Added Date]
+        , evalav.ValueAsDateTime as [Evaluation Date]
+        , concat(rp.NickName,' ',rp.LastName) as [Person Responsible]
+        , notesav.Value as Notes
+    FROM Person p
+    INNER JOIN AttributeValue vciav
+        ON vciav.EntityId = p.Id
+            AND vciav.AttributeId = @VCIAttributeId
+    INNER JOIN AttributeMatrix am
+        ON vciav.[Value] = am.Guid
+    INNER JOIN AttributeMatrixItem ami
+        ON ami.AttributeMatrixId = am.Id
+    LEFT JOIN AttributeValue levelav
+        ON levelav.EntityId = ami.Id
+            AND levelav.AttributeId = @LevelAttributeId
+    LEFT JOIN AttributeValue responsibleav
+        ON responsibleav.EntityId = ami.Id
+            AND responsibleav.AttributeId = @ResponsibleAttributeId
+    LEFT JOIN Person rp 
+        ON rp.Id = responsibleav.ValueAsPersonId
+    LEFT JOIN AttributeValue addedav
+        ON addedav.EntityId = ami.Id
+            AND addedav.AttributeId = @AddedAttributeId
+    LEFT JOIN AttributeValue evalav
+        ON evalav.EntityId = ami.Id
+            AND evalav.AttributeId = @EvalAttributeId
+    LEFT JOIN AttributeValue notesav
+        ON notesav.EntityId = ami.Id
+            AND notesav.AttributeId = @NotesAttributeId
+    where p.Id = p2.Id
+    ORDER BY p.Id, evalav.ValueAsDateTime Desc
+    ) vcip
+ORDER BY vcip.[Evaluation Date] ASC
+</pre>
+<strong>Hide Columns:</strong> Id<br>
+  <strong>Selection URL</strong>: (page where your VCI attribute is displayed)
+</p>
+<p><strong>VCI Evaluation Date Reached</strong><br>
+  Shows all people who have an expired Evaluation Date
+</p>
+<p>Create a page with a Dynamic Data Block:</p>
+<p><strong>Query:
+</strong>
+<pre>DECLARE @VCIAttributeId INT = 15892; -- VCI Person AttributeId
+DECLARE @EvalAttributeId INT = 15890; -- Evaluation Date AttributeId from VCI Matrix
+DECLARE @LevelAttributeId INT = 15889; -- Level AttributeId from VCI Matrix
+DECLARE @bgcAttributeId INT = 1298; -- Background Check date Attribute Id
+DECLARE @msAttributeId INT = 8524; -- Safety Awareness Training Date Attribute Id
+
+SELECT topvci.*
+FROM PersonAlias pa 
+INNER JOIN AttributeValue avvci 
+    ON avvci.EntityId = pa.AliasPersonId
+        AND avvci.AttributeId = @VCIAttributeId
+CROSS APPLY (
+    SELECT TOP 1 p.Id
+    , p.NickName
+    , p.LastName
+        , avlevel.Value AS [Level]
+        , aveval.ValueAsDateTime AS EvalDate
+        , avbgc.ValueAsDateTime as BGCDate
+        , avms.ValueAsDateTime as MSDate
+    FROM Person p
+    INNER JOIN PersonAlias vpa
+        ON vpa.AliasPersonId = p.Id
+    INNER JOIN AttributeValue av
+        ON av.EntityId = p.Id
+            AND av.AttributeId = @VCIAttributeId
+    INNER JOIN AttributeMatrix am
+        ON am.Guid = av.Value
+    INNER JOIN AttributeMatrixItem ami
+        ON ami.AttributeMatrixId = am.Id
+    INNER JOIN AttributeValue aveval
+        ON aveval.EntityId = ami.Id
+            AND aveval.AttributeId = @EvalAttributeId
+    INNER JOIN AttributeValue avlevel
+        ON avlevel.EntityId = ami.Id
+            AND avlevel.AttributeId = @LevelAttributeId
+    INNER JOIN AttributeValue avbgc
+        ON avbgc.EntityId = p.Id 
+            AND avbgc.AttributeId = @bgcAttributeId
+    LEFT JOIN AttributeValue avms 
+        ON avms.EntityId = p.Id 
+            AND avms.AttributeId = @msAttributeId
+    WHERE vpa.Guid = pa.Guid
+    ORDER BY aveval.ValueAsDateTime Desc
+    ) topvci
+--    ON topvci.Person = pa.Guid
+WHERE topvci.EvalDate between '1/1/2024' and getdate()
+order by topvci.EvalDate desc</pre>
+<strong>Hide Columns:</strong> Id<br>
+  <strong>Selection URL:</strong> ~/person/{Id}
+  </p>
+	
+<h2>Bonus Content</h2>
+<p>Beyond the ability to notify all the need to know people about a VCI change, you can also use a Job and Workflow to Automate some changes based on important safety expirations like Background Check and Safety Training. At CBC we evaluate all of our Background checks once a year and ask our volunteers who work with kids to take our Safety Awareness Training every 2 years. You will need to adjust the workflow to your needs for re-evaluating your safety items.</p>
+<h3>Understanding the automation in the workflow:</h3>
+<p><strong>Green</strong><br>
+When a volunteer is allowed to work with minors they are level <strong>Green</strong>. When their Safety Awareness Training is expired (2 years), they are moved to level <strong>Blue</strong>. When their background check is expired (1 year), they are moved to level <strong>Orange</strong>.</p>
+<p><strong>Yellow<br>
+</strong>When a volunteer is under 18, their background check is not informative. We place them as a yellow until they are 18. When they turn 18, they are moved to level <strong>Orange</strong>.</p>
+<p><strong>Blue<br>
+</strong>Every volunteer 18 and older must be a level <strong>Blue</strong> in order to volunteer. When their background check is expired (1 year), they are moved to level <strong>Orange</strong></p>
+<p><strong>Orange</strong><br>
+After an expired background check, or the volunteer turns 18, they are given 3 months to have their background check re-evaluated. After 3 months, they are moved to <strong>Red</strong>. </p>
+<h3>Workflow: VCI Evaluation - </h3>
+<p><strong>Things to Change:<br>
+</strong>Based on the 4 levels above, evaluate your process and determine which Automation needs changed. Each activity sets the new Level and the new Evaluation Date based on the above criteria.</p>
+<h3>Job</h3>
+<p><strong>Name: </strong>Evaluate VCI<br>
+  <strong>Job Type:</strong> Workflow Launcher (Plugin)<br>
+  <strong>SQL Query</strong>:
+<pre>DECLARE @VCIAttributeId INT = 15892; -- VCI Person AttributeId
+DECLARE @bgcAttributeId INT = 1298; -- Person Attribute of Background Check Date
+DECLARE @LevelAttributeId INT = 15889; -- Level Attribute of VCI Matrix
+DECLARE @ResponsibleAttributeId INT = 15888; -- Responsible Attribute of VCI Matrix
+DECLARE @AddedAttributeId INT = 15905; -- Added Date Attribute of VCI Matrix
+DECLARE @EvalAttributeId INT = 15890; -- Evaluation Date Attribute of VCI Matrix
+DECLARE @NotesAttributeId INT = 15891; -- Notes Attribute of VCI Matrix
+
+SELECT vcip.*
+FROM Person p2
+CROSS APPLY (
+    SELECT TOP 1 pa.Guid as Person
+        , levelav.[Value] as [Level]
+        , addedav.ValueAsDateTime as [AddedDate]
+        , evalav.ValueAsDateTime as [EvalDate]
+        , responsibleav.[Value] as [Responsible]
+        , vciav.[Value] as VCI
+    FROM Person p
+    INNER JOIN PersonAlias pa 
+        ON pa.PersonId = p.Id
+    INNER JOIN AttributeValue vciav
+        ON vciav.EntityId = p.Id
+            AND vciav.AttributeId = @VCIAttributeId
+    LEFT JOIN AttributeValue bgcav
+        ON bgcav.EntityId = p.Id
+            AND bgcav.AttributeId = @bgcAttributeId
+    INNER JOIN AttributeMatrix am
+        ON vciav.[Value] = am.Guid
+    INNER JOIN AttributeMatrixItem ami
+        ON ami.AttributeMatrixId = am.Id
+    LEFT JOIN AttributeValue levelav
+        ON levelav.EntityId = ami.Id
+            AND levelav.AttributeId = @LevelAttributeId
+    LEFT JOIN AttributeValue responsibleav
+        ON responsibleav.EntityId = ami.Id
+            AND responsibleav.AttributeId = @ResponsibleAttributeId
+    LEFT JOIN AttributeValue addedav
+        ON addedav.EntityId = ami.Id
+            AND addedav.AttributeId = @AddedAttributeId
+    LEFT JOIN AttributeValue evalav
+        ON evalav.EntityId = ami.Id
+            AND evalav.AttributeId = @EvalAttributeId
+    LEFT JOIN AttributeValue notesav
+        ON notesav.EntityId = ami.Id
+            AND notesav.AttributeId = @NotesAttributeId
+    WHERE p.Guid = p2.Guid
+    ORDER BY p.Id, evalav.ValueAsDateTime Desc
+    ) vcip
+WHERE cast(vcip.EvalDate as DATE) = CAST(getdate() AS DATE)</pre>
+  <p><strong>Workflow: </strong>VCI Evaluation
+  </p>
+  </p>
+  <h3>Report: VCI Evaluation Date Automated Changes Made</h3>
+  <p>Add a Dynamic Dta Block to the report: <strong>VCI Evaluation Date Reached</strong></p>
+<p><strong>Query: </strong>
+<pre>DECLARE @PersonAttributeId INT = 16966; -- Person Attribute of Workflow
+DECLARE @WorkflowTypeId INT = 195; -- Workflow Type ID from VCI Evaluation
+
+select av.ValueAsPersonId as PersonId
+from Workflow w
+INNER JOIN AttributeValue av
+    ON w.Id = av.EntityId and av.AttributeId = @PersonAttributeId
+INNER JOIN Person p 
+    ON av.ValueAsPersonId = p.Id
+where w.WorkflowTypeId = @WorkflowTypeId
+    AND CAST(w.ActivatedDateTime as DATE) BETWEEN dateadd(d,-3,CAST(getdate() as DATE)) AND CAST(getdate() as DATE)
+order by w.ActivatedDateTime Desc</pre>
+  <strong>Customize Results With Lava: </strong>Yes<br>
+<strong>Formatted Output:</strong>
+<pre><table class="table table-striped">
+    <tr>
+        <th>Person</th>
+        <th>Background</th>
+        <th>Ministry Safe</th>
+        <th>VCI</th>
+    </tr>
+    {% for row in rows %}
+        {% assign Person = row.PersonId | PersonById %}
+        <tr>
+            <td><a href="../../..//person/{{ Person.Id }}/hr">{{ Person }}</a></td>
+            <td>{{ Person | Attribute:'BackgroundCheckDate' | Date:'MM/dd/yyyy' }}</td>
+            <td>{{ Person | Attribute:'TrainingDate' | Date:'MM/dd/yyyy' }}</td>
+            <td>{{ Person | Attribute:'VCI' }}</td>
+        </tr>
+    {% endfor %}
+</table></pre>
+</p> The &lt;a&gt; tag in the above code needs to reflect where you have the VCI person attribute visible to the staff person in charge of safety and security.
+</body>
+</html>
