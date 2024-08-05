@@ -77,7 +77,7 @@ Item Attributes:</p>
       <li>Key: Notes</li>
       <li>Field Type: Memo</li>
     </ul>
-  </li>
+  <img src="https://github.com/Community-Bible-Church/VCI/blob/main/Supporting%20Images/Attribute%20Matrix%20Template.png" width="462" height="450" alt=""/></li>
 </ul>
 <h3><strong>Person Attriubte:</strong></h3>
 <ul>
@@ -150,12 +150,14 @@ Item Attributes:</p>
     <li>Entity Type Qualifier Column: AttributeId</li>
     <li>Or value is: Attribute Id of Level in the Attribute Matrix Template: Volunteer Capacity Indicator created above.</li>
   </ol>
+  <p><img src="https://github.com/Community-Bible-Church/VCI/blob/main/Supporting%20Images/Workflow%20Trigger.png" width="1353" height="523" alt=""/></p>
 
 </ol>
 <h3><strong>Reports</strong></h3>
 <p><strong>VCI Report</strong><br>
   Shows all People with a VCI set. Allows Filtering/Sorting
-</p>
+    <br>
+<img src="https://github.com/Community-Bible-Church/VCI/blob/main/Supporting%20Images/VCI%20Report.png" width="1141" height="728" alt=""/></p>
 <p>Create a page with a Dynamic Data Block</p>
 <p><strong>Query</strong>:
 <pre>DECLARE @VCIAttributeId INT = 15892; -- VCI Person Attribute ID
@@ -214,6 +216,8 @@ ORDER BY vcip.[Evaluation Date] ASC
 </p>
 <p><strong>VCI Evaluation Date Reached</strong><br>
   Shows all people who have an expired Evaluation Date
+    <br>
+  <img src="https://github.com/Community-Bible-Church/VCI/blob/main/Supporting%20Images/VCI%20Evaluation%20Date%20Manual.png" width="1354" height="331" alt=""/>    <br>
 </p>
 <p>Create a page with a Dynamic Data Block:</p>
 <p><strong>Query:
@@ -340,7 +344,9 @@ WHERE cast(vcip.EvalDate as DATE) = CAST(getdate() AS DATE)</pre>
   </p>
   </p>
   <h3>Report: VCI Evaluation Date Automated Changes Made</h3>
-  <p>Add a Dynamic Dta Block to the report: <strong>VCI Evaluation Date Reached</strong></p>
+  <p>Add a Dynamic Dta Block to the report: <strong>VCI Evaluation Date Reached</strong><br>
+    <img src="https://github.com/Community-Bible-Church/VCI/blob/main/Supporting%20Images/VCI%20Automation.png" width="1357" height="687" alt=""/>    <br>
+  </p>
 <p><strong>Query: </strong>
 <pre>DECLARE @PersonAttributeId INT = 16966; -- Person Attribute of Workflow
 DECLARE @WorkflowTypeId INT = 195; -- Workflow Type ID from VCI Evaluation
@@ -366,7 +372,7 @@ order by w.ActivatedDateTime Desc</pre>
     {% for row in rows %}
         {% assign Person = row.PersonId | PersonById %}
         <tr>
-            <td><a href="../../..//person/{{ Person.Id }}/hr">{{ Person }}</a></td>
+            <td><a href="/person/{{ Person.Id }}/hr">{{ Person }}</a></td>
             <td>{{ Person | Attribute:'BackgroundCheckDate' | Date:'MM/dd/yyyy' }}</td>
             <td>{{ Person | Attribute:'TrainingDate' | Date:'MM/dd/yyyy' }}</td>
             <td>{{ Person | Attribute:'VCI' }}</td>
