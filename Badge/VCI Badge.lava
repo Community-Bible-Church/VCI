@@ -1,0 +1,9 @@
+{% assign vci = Person | Attribute:'VCI','Object' %}
+{% attributematrixitem where:'AttributeMatrixId == "{{ vci.Id }}"' sort:'EvaluationDate desc' iterator:'items' limit:'1' securityenabled:'false' %}
+    {% for item in items %}
+        {% assign length = item | Attribute:'Level' | Size | Minus:4 %}
+        <div class="rockbadge rockbadge-icon" data-toggle="tooltip" data-original-title="{{ item | Attribute:'Level' | Slice:4,length }}">
+            <i class="fab fa-vimeo-v" style="color:{{ item | Attribute:'Level','RawValue' }}"></i>
+        </div>
+    {% endfor %}
+{% endattributematrixitem %}

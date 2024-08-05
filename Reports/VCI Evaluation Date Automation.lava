@@ -1,0 +1,17 @@
+<table class="table table-striped">
+    <tr>
+        <th>Person</th>
+        <th>Background</th>
+        <th>Ministry Safe</th>
+        <th>VCI</th>
+    </tr>
+    {% for row in rows %}
+        {% assign Person = row.PersonId | PersonById %}
+        <tr>
+            <td><a href="/person/{{ Person.Id }}/hr">{{ Person }}</a></td>
+            <td>{{ Person | Attribute:'BackgroundCheckDate' | Date:'MM/dd/yyyy' }}</td>
+            <td>{{ Person | Attribute:'TrainingDate' | Date:'MM/dd/yyyy' }}</td>
+            <td>{{ Person | Attribute:'VCI' }}</td>
+        </tr>
+    {% endfor %}
+</table>
