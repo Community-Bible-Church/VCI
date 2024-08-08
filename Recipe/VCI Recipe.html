@@ -6,7 +6,6 @@
 </head>
 
 <body>
-<h1> Volunteer Capacity Indicator (VCI)</h1>
 <h2>Problem</h2>
 <p>Having too many badges showing a persons completion of volunteer related Eligibility/Safety tasks can be difficult to know a volunteers true eligibility and can add safety and security vulnerabilities for your church. Each church evaluates the safety and security of their volunteers differently. Hopefully you can use the framework below to process your VCI. If you will not be using the Bonus Content, the Evaluation dates will be set manually to dates when you would like to notify ministries of potential safety/security issues. The Bonus content adds a job/workflow that helps remove around 80% of the manual changes that occur during normal processing of expired requirements.</p>
 <h2>What is a VCI?</h2>
@@ -100,7 +99,7 @@ Item Attributes:</p>
         <div class="rockbadge rockbadge-icon" data-toggle="tooltip" data-original-title="{{ item | Attribute:'Level' | Slice:4,length }}">
             <i class="fab fa-vimeo-v" style="color:{{ item | Attribute:'Level','RawValue' }}"></i>
         </div>
-    {% endfor %}    
+    {% endfor %}
 {% endattributematrixitem %}</pre></li>
 </ul>
 	<h3><strong>Workflow:</strong> VCI Change - VCI Change_202408011359.json</h3>
@@ -121,7 +120,7 @@ Item Attributes:</p>
   <li>Attribute: Safety Team - Person who is responsible for your safety and security of your campuses</li>
   <li>Activity: Process Changes
     <ol>
-      <li>        Action: 
+      <li>        Action:
         Get Connectors<br>
         Modify the cr.ConnectionTypeId = 4 line to the connection type id of your serving connections</li>
       <li>Action: Get Connection Request<br>
@@ -195,7 +194,7 @@ CROSS APPLY (
     LEFT JOIN AttributeValue responsibleav
         ON responsibleav.EntityId = ami.Id
             AND responsibleav.AttributeId = @ResponsibleAttributeId
-    LEFT JOIN Person rp 
+    LEFT JOIN Person rp
         ON rp.Id = responsibleav.ValueAsPersonId
     LEFT JOIN AttributeValue addedav
         ON addedav.EntityId = ami.Id
@@ -229,8 +228,8 @@ DECLARE @bgcAttributeId INT = 1298; -- Background Check date Attribute Id
 DECLARE @msAttributeId INT = 8524; -- Safety Awareness Training Date Attribute Id
 
 SELECT topvci.*
-FROM PersonAlias pa 
-INNER JOIN AttributeValue avvci 
+FROM PersonAlias pa
+INNER JOIN AttributeValue avvci
     ON avvci.EntityId = pa.AliasPersonId
         AND avvci.AttributeId = @VCIAttributeId
 CROSS APPLY (
@@ -258,10 +257,10 @@ CROSS APPLY (
         ON avlevel.EntityId = ami.Id
             AND avlevel.AttributeId = @LevelAttributeId
     INNER JOIN AttributeValue avbgc
-        ON avbgc.EntityId = p.Id 
+        ON avbgc.EntityId = p.Id
             AND avbgc.AttributeId = @bgcAttributeId
-    LEFT JOIN AttributeValue avms 
-        ON avms.EntityId = p.Id 
+    LEFT JOIN AttributeValue avms
+        ON avms.EntityId = p.Id
             AND avms.AttributeId = @msAttributeId
     WHERE vpa.Guid = pa.Guid
     ORDER BY aveval.ValueAsDateTime Desc
@@ -272,7 +271,7 @@ order by topvci.EvalDate desc</pre>
 <strong>Hide Columns:</strong> Id<br>
   <strong>Selection URL:</strong> ~/person/{Id}
   </p>
-	
+
 <h2>Bonus Content</h2>
 <p>Beyond the ability to notify all the need to know people about a VCI change, you can also use a Job and Workflow to Automate some changes based on important safety expirations like Background Check and Safety Training. At CBC we evaluate all of our Background checks once a year and ask our volunteers who work with kids to take our Safety Awareness Training every 2 years. You will need to adjust the workflow to your needs for re-evaluating your safety items.</p>
 <h3>Understanding the automation in the workflow:</h3>
@@ -309,7 +308,7 @@ CROSS APPLY (
         , responsibleav.[Value] as [Responsible]
         , vciav.[Value] as VCI
     FROM Person p
-    INNER JOIN PersonAlias pa 
+    INNER JOIN PersonAlias pa
         ON pa.PersonId = p.Id
     INNER JOIN AttributeValue vciav
         ON vciav.EntityId = p.Id
@@ -355,7 +354,7 @@ select av.ValueAsPersonId as PersonId
 from Workflow w
 INNER JOIN AttributeValue av
     ON w.Id = av.EntityId and av.AttributeId = @PersonAttributeId
-INNER JOIN Person p 
+INNER JOIN Person p
     ON av.ValueAsPersonId = p.Id
 where w.WorkflowTypeId = @WorkflowTypeId
     AND CAST(w.ActivatedDateTime as DATE) BETWEEN dateadd(d,-3,CAST(getdate() as DATE)) AND CAST(getdate() as DATE)
