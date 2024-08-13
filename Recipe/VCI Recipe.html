@@ -6,6 +6,7 @@
 </head>
 
 <body>
+<p><i>Presented at RX2024</i></p>
 <h2>Problem</h2>
 <p>Having too many badges showing a persons completion of volunteer related Eligibility/Safety tasks can be difficult to know a volunteers true eligibility and can add safety and security vulnerabilities for your church. Each church evaluates the safety and security of their volunteers differently. Hopefully you can use the framework below to process your VCI. If you will not be using the Bonus Content, the Evaluation dates will be set manually to dates when you would like to notify ministries of potential safety/security issues. The Bonus content adds a job/workflow that helps remove around 80% of the manual changes that occur during normal processing of expired requirements.</p>
 <h2>What is a VCI?</h2>
@@ -32,6 +33,7 @@ This gives you a new Job: &quot;Workflow Launcher (Plugin)&quot; that allows you
 <h2>Details</h2>
 <p>In it's simplist form, the VCI is a Person Attribute Matrix manually entered to show the person's eligibility to serve. The reason there is a manual process to start the VCI is there is a manual review of the person's Background check to determine the initial VCI Level.</p>
 <p>The automation involved give notifications when a volunteer's VCI change or expires and also automates the Level at expiration then also kicking off notifications.</p>
+<p>All the code below plus images can be found at https://github.com/Community-Bible-Church/VCI</p>
 <h3><strong>Attribute Matrix:</strong> /admin/general/attribute-matrix</h3>
 <p>Name: Volunteer Capacity Indicator<br>
 Description:&nbsp;A matrix containing information about an Volunteers capacity to serve.&nbsp;<br>
@@ -76,7 +78,7 @@ Item Attributes:</p>
       <li>Key: Notes</li>
       <li>Field Type: Memo</li>
     </ul>
-  <img src="https://github.com/Community-Bible-Church/VCI/blob/main/Supporting%20Images/Attribute%20Matrix%20Template.png" width="462" height="450" alt=""/></li>
+  <img src="https://community.rockrms.com/GetImage.ashx?id=62016" width="462" height="450" alt=""/></li>
 </ul>
 <h3><strong>Person Attriubte:</strong></h3>
 <ul>
@@ -149,14 +151,14 @@ Item Attributes:</p>
     <li>Entity Type Qualifier Column: AttributeId</li>
     <li>Or value is: Attribute Id of Level in the Attribute Matrix Template: Volunteer Capacity Indicator created above.</li>
   </ol>
-  <p><img src="https://github.com/Community-Bible-Church/VCI/blob/main/Supporting%20Images/Workflow%20Trigger.png" width="1353" height="523" alt=""/></p>
+  <p><img src="https://community.rockrms.com/GetImage.ashx?id=62015" width="1353" height="523" alt=""/></p>
 
 </ol>
 <h3><strong>Reports</strong></h3>
 <p><strong>VCI Report</strong><br>
   Shows all People with a VCI set. Allows Filtering/Sorting
     <br>
-<img src="https://github.com/Community-Bible-Church/VCI/blob/main/Supporting%20Images/VCI%20Report.png" width="1141" height="728" alt=""/></p>
+<img src="https://community.rockrms.com/GetImage.ashx?id=62014" width="1141" height="728" alt=""/></p>
 <p>Create a page with a Dynamic Data Block</p>
 <p><strong>Query</strong>:
 <pre>DECLARE @VCIAttributeId INT = 15892; -- VCI Person Attribute ID
@@ -216,7 +218,7 @@ ORDER BY vcip.[Evaluation Date] ASC
 <p><strong>VCI Evaluation Date Reached</strong><br>
   Shows all people who have an expired Evaluation Date
     <br>
-  <img src="https://github.com/Community-Bible-Church/VCI/blob/main/Supporting%20Images/VCI%20Evaluation%20Date%20Manual.png" width="1354" height="331" alt=""/>    <br>
+  <img src="https://community.rockrms.com/GetImage.ashx?id=62013" width="1354" height="331" alt=""/>    <br>
 </p>
 <p>Create a page with a Dynamic Data Block:</p>
 <p><strong>Query:
@@ -283,7 +285,9 @@ When a volunteer is allowed to work with minors they are level <strong>Green</st
 </strong>Every volunteer 18 and older must be a level <strong>Blue</strong> in order to volunteer. When their background check is expired (1 year), they are moved to level <strong>Orange</strong></p>
 <p><strong>Orange</strong><br>
 After an expired background check, or the volunteer turns 18, they are given 3 months to have their background check re-evaluated. After 3 months, they are moved to <strong>Red</strong>. </p>
-<h3>Workflow: VCI Evaluation - </h3>
+<h3>Workflow: VCI Evaluation - VCI Evaluation_202408050827.json</h3>
+<p><strong>Download:</strong><br>
+https://github.com/Community-Bible-Church/VCI/blob/main/Workflows/VCI%20Evaluation_202408050827.json</p>
 <p><strong>Things to Change:<br>
 </strong>Based on the 4 levels above, evaluate your process and determine which Automation needs changed. Each activity sets the new Level and the new Evaluation Date based on the above criteria.</p>
 <h3>Job</h3>
@@ -344,7 +348,7 @@ WHERE cast(vcip.EvalDate as DATE) = CAST(getdate() AS DATE)</pre>
   </p>
   <h3>Report: VCI Evaluation Date Automated Changes Made</h3>
   <p>Add a Dynamic Dta Block to the report: <strong>VCI Evaluation Date Reached</strong><br>
-    <img src="https://github.com/Community-Bible-Church/VCI/blob/main/Supporting%20Images/VCI%20Automation.png" width="1357" height="687" alt=""/>    <br>
+    <img src="https://community.rockrms.com/GetImage.ashx?id=62012" width="1357" height="687" alt=""/>    <br>
   </p>
 <p><strong>Query: </strong>
 <pre>DECLARE @PersonAttributeId INT = 16966; -- Person Attribute of Workflow
@@ -378,6 +382,7 @@ order by w.ActivatedDateTime Desc</pre>
         </tr>
     {% endfor %}
 </table></pre>
-</p> The &lt;a&gt; tag in the above code needs to reflect where you have the VCI person attribute visible to the staff person in charge of safety and security.
+</p> <p>The &lt;a&gt; tag in the above code needs to reflect where you have the VCI person attribute visible to the staff person in charge of safety and security.</p></p>
+<p>All the code above plus images can be found at https://github.com/Community-Bible-Church/VCI</p>
 </body>
 </html>
